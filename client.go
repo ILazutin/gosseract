@@ -234,6 +234,34 @@ func (client *Client) SetTessdataPrefix(prefix string) error {
 	return nil
 }
 
+type OSResult struct {
+	Orientation           int
+	Script                int
+	ScriptConfidence      float64
+	OrientationConfidence float64
+}
+
+func (client *Client) DetectOS() (out OSResult, err error) {
+	if client.api == nil {
+		return out, fmt.Errorf("TessBaseAPI is not constructed, please use `gosseract.NewClient`")
+	}
+	if err = client.init(); err != nil {
+		return out, err
+	}
+
+	result := C.DetectOS(client.api)
+	if result != nil {
+		return OSResult{
+			Orientation:           int(result.orientation_id),
+			Script:                int(result.script_id),
+			ScriptConfidence:      float64(result.sconfidence),
+			OrientationConfidence: float64(result.oconfidence),
+		}, nil
+	}
+
+	return out, fmt.Errorf("Cannot detect orientation and script")
+}
+
 // Initialize tesseract::TessBaseAPI
 func (client *Client) init() error {
 

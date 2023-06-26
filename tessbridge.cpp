@@ -105,6 +105,19 @@ char* HOCRText(TessBaseAPI a) {
     return api->GetHOCRText(0);
 }
 
+OSResult* DetectOS(TessBaseAPI a) {
+    tesseract::TessBaseAPI* api = (tesseract::TessBaseAPI*)a;
+    struct OSResult* osresult;
+    bool success = false;
+    success api->OSResult
+
+    if (success) {
+        return osresult;
+    }
+
+    return NULL;
+}
+
 bounding_boxes* GetBoundingBoxesVerbose(TessBaseAPI a) {
     using namespace tesseract;
     tesseract::TessBaseAPI* api = (tesseract::TessBaseAPI*)a;

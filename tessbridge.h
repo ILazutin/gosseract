@@ -12,6 +12,15 @@ struct bounding_box {
     int block_num, par_num, line_num, word_num;
 };
 
+struct OSResult {
+  OSResult()
+      : orientation_id(0), script_id(0), sconfidence(0.0), oconfidence(0.0) {}
+  int orientation_id;
+  int script_id;
+  float sconfidence;
+  float oconfidence;
+};
+
 struct bounding_boxes {
     int length;
     struct bounding_box* boxes;
@@ -33,6 +42,7 @@ char* UTF8Text(TessBaseAPI);
 char* HOCRText(TessBaseAPI);
 const char* Version(TessBaseAPI);
 const char* GetDataPath();
+struct OSResults* DetectOS(TessBaseAPI);
 
 PixImage CreatePixImageByFilePath(char*);
 PixImage CreatePixImageFromBytes(unsigned char*, int);
