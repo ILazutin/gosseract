@@ -108,10 +108,9 @@ char* HOCRText(TessBaseAPI a) {
 OSResult* DetectOS(TessBaseAPI a) {
     tesseract::TessBaseAPI* api = (tesseract::TessBaseAPI*)a;
     struct OSResult* osresult;
-    bool success = false;
-    success api->DetectOS(osresult)
+    bool success = api->DetectOS(osresult);
 
-    if (success) {
+    if (success == true) {
         return osresult;
     }
 
