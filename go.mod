@@ -1,4 +1,4 @@
-module github.com/ILazutin/gosseract/v1
+module github.com/ILazutin/gosseract
 
 go 1.18
 
