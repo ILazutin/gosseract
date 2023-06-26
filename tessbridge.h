@@ -13,8 +13,6 @@ struct bounding_box {
 };
 
 struct OSResult {
-  OSResult()
-      : orientation_id(0), script_id(0), sconfidence(0.0), oconfidence(0.0) {}
   int orientation_id;
   int script_id;
   float sconfidence;

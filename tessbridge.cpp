@@ -109,7 +109,7 @@ OSResult* DetectOS(TessBaseAPI a) {
     tesseract::TessBaseAPI* api = (tesseract::TessBaseAPI*)a;
     struct OSResult* osresult;
     bool success = false;
-    success api->OSResult
+    success api->DetectOS(osresult)
 
     if (success) {
         return osresult;
