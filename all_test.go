@@ -321,3 +321,19 @@ func TestGetAvailableLangs(t *testing.T) {
 	// Expect(t, err).ToBe(nil)
 	// Expect(t, len(langs)).ToBe(1) // eng only
 }
+
+func TestDetectOS(t *testing.T) {
+	client := NewClient()
+	defer client.Close()
+	client.SetPageSegMode(PSM_OSD_ONLY)
+	println(client.GetPageSegMode())
+	client.SetImage("./test/data/003-longer-text.png")
+
+	result, err := client.DetectOrientationScript()
+	Expect(t, err).ToBe(nil)
+	Expect(t, result.OrientationDegree).ToBe(270)
+	println(result.String())
+
+	text, err := client.OSDText()
+	println(text)
+}

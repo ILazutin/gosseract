@@ -105,16 +105,18 @@ char* HOCRText(TessBaseAPI a) {
     return api->GetHOCRText(0);
 }
 
-OSResult* DetectOS(TessBaseAPI a) {
+char* OSDText(TessBaseAPI a) {
     tesseract::TessBaseAPI* api = (tesseract::TessBaseAPI*)a;
-    struct OSResult* osresult;
-    bool success = api->DetectOS(osresult);
+    return api->GetOsdText(0);
+}
 
-    if (success == true) {
-        return osresult;
-    }
-
-    return NULL;
+osd_result* DetectOrientationScript(TessBaseAPI a) {
+  tesseract::TessBaseAPI * api = (tesseract::TessBaseAPI*)a;
+  struct osd_result* result;
+  result = (osd_result*)malloc(sizeof(osd_result));
+  result->script_name = (char*)malloc(sizeof(char));
+  result->success = api->DetectOrientationScript(&result->orient_deg, &result->orient_conf, (const char**)&result->script_name, &result->script_conf);
+  return result;
 }
 
 bounding_boxes* GetBoundingBoxesVerbose(TessBaseAPI a) {

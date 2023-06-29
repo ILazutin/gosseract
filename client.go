@@ -5,6 +5,7 @@ package gosseract
 // #include "tessbridge.h"
 import "C"
 import (
+	"errors"
 	"fmt"
 	"image"
 	"os"
@@ -241,25 +242,14 @@ type OSResult struct {
 	OrientationConfidence float64
 }
 
-func (client *Client) DetectOS() (out OSResult, err error) {
+func (client *Client) GetPageSegMode() (out int, err error) {
 	if client.api == nil {
 		return out, fmt.Errorf("TessBaseAPI is not constructed, please use `gosseract.NewClient`")
 	}
-	if err = client.init(); err != nil {
-		return out, err
-	}
 
-	result := C.DetectOS(client.api)
-	if result != nil {
-		return OSResult{
-			Orientation:           int(result.orientation_id),
-			Script:                int(result.script_id),
-			ScriptConfidence:      float64(result.sconfidence),
-			OrientationConfidence: float64(result.oconfidence),
-		}, nil
-	}
-
-	return out, fmt.Errorf("Cannot detect orientation and script")
+	result := C.GetPageSegMode(client.api)
+	out = int(result)
+	return out, nil
 }
 
 // Initialize tesseract::TessBaseAPI
@@ -335,6 +325,53 @@ func (client *Client) setVariablesToInitializedAPI() error {
 	return nil
 }
 
+type OSDResult struct {
+	// OrientationDegree is the detected clockwise rotation of the input
+	// image in degrees (0, 90, 180, 270).
+	OrientationDegree int
+	// OrientationConfidence is a confidence indicator for the orientation
+	// for which "15.0 is reasonably confident".
+	OrientationConfidence float64
+	ScriptName            *string
+	ScriptConfidence      float64
+}
+
+func (osd OSDResult) String() string {
+	if osd.ScriptName == nil {
+		return fmt.Sprintf("orientation: %d (%.2f)", osd.OrientationDegree, osd.OrientationConfidence)
+	}
+	return fmt.Sprintf("orientation: %d (%.2f), script: %s (%.2f)",
+		osd.OrientationDegree, osd.OrientationConfidence, *osd.ScriptName, osd.ScriptConfidence)
+}
+
+// DetectOrientationScript detects the orientation and script of the text.
+func (client *Client) DetectOrientationScript() (out *OSDResult, err error) {
+	if client.api == nil {
+		return out, fmt.Errorf("TessBaseAPI is not constructed, please use `gosseract.NewClient`")
+	}
+	if err = client.init(); err != nil {
+		return
+	}
+	osdResult := C.DetectOrientationScript(client.api)
+	defer C.free(unsafe.Pointer(osdResult))
+	osd := (*C.struct_osd_result)(unsafe.Pointer(osdResult))
+	var scriptName *string
+	if osd.script_name != nil {
+		s := C.GoString(osd.script_name)
+		scriptName = &s
+	}
+	if !bool(osd.success) {
+		return nil, errors.New("orientation and script detection failed")
+	}
+	out = &OSDResult{
+		OrientationDegree:     int(osd.orient_deg),
+		OrientationConfidence: float64(osd.orient_conf),
+		ScriptName:            scriptName,
+		ScriptConfidence:      float64(osd.script_conf),
+	}
+	return
+}
+
 // Call setVariablesToInitializedAPI only if the API is initialized
 // it is useful to call when changing variables that does not requires
 // to init a new tesseract instance. Otherwise it is better to just flag
@@ -366,6 +403,14 @@ func (client *Client) HOCRText() (out string, err error) {
 		return
 	}
 	out = C.GoString(C.HOCRText(client.api))
+	return
+}
+
+func (client *Client) OSDText() (out string, err error) {
+	if err = client.init(); err != nil {
+		return
+	}
+	out = C.GoString(C.OSDText(client.api))
 	return
 }
 

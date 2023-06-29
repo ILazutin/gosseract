@@ -12,16 +12,17 @@ struct bounding_box {
     int block_num, par_num, line_num, word_num;
 };
 
-struct OSResult {
-  int orientation_id;
-  int script_id;
-  float sconfidence;
-  float oconfidence;
-};
-
 struct bounding_boxes {
     int length;
     struct bounding_box* boxes;
+};
+
+struct osd_result {
+    bool success;
+    int orient_deg;
+    float orient_conf;
+    char* script_name;
+    float script_conf;
 };
 
 TessBaseAPI Create(void);
@@ -38,9 +39,10 @@ void SetPageSegMode(TessBaseAPI, int);
 int GetPageSegMode(TessBaseAPI);
 char* UTF8Text(TessBaseAPI);
 char* HOCRText(TessBaseAPI);
+char* OSDText(TessBaseAPI);
 const char* Version(TessBaseAPI);
 const char* GetDataPath();
-struct OSResults* DetectOS(TessBaseAPI);
+struct osd_result* DetectOrientationScript(TessBaseAPI);
 
 PixImage CreatePixImageByFilePath(char*);
 PixImage CreatePixImageFromBytes(unsigned char*, int);
